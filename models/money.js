@@ -163,7 +163,6 @@ module.exports.getAll = (req, res) => {
     Quote.find({creator: req.params.user}, (err, data) => {
         if(err) res.json(err);
         else res.json(data);
-        console.log(data);
     });
 }
 

@@ -1,6 +1,6 @@
 webpackJsonp([2,4],{
 
-/***/ 373:
+/***/ 374:
 /***/ (function(module, exports) {
 
 /*
@@ -57,16 +57,16 @@ module.exports = function() {
 
 /***/ }),
 
-/***/ 397:
+/***/ 398:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(674);
+var content = __webpack_require__(675);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(728)(content, {});
+var update = __webpack_require__(729)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -84,25 +84,25 @@ if(false) {
 
 /***/ }),
 
-/***/ 674:
+/***/ 675:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(373)();
+exports = module.exports = __webpack_require__(374)();
 // imports
-exports.i(__webpack_require__(675), "");
+exports.i(__webpack_require__(676), "");
 
 // module
-exports.push([module.i, "/* You can add global styles to this file, and also import other style files */\n\n* {\n    font-family: 'Raleway';\n}\n", ""]);
+exports.push([module.i, "/* You can add global styles to this file, and also import other style files */\n\n* {\n    font-family: 'Montserrat', sans-serif;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 675:
+/***/ 676:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(373)();
+exports = module.exports = __webpack_require__(374)();
 // imports
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic);", ""]);
 
@@ -114,7 +114,7 @@ exports.push([module.i, "/*!\n * Bootswatch v4.0.0\n * Homepage: https://bootswa
 
 /***/ }),
 
-/***/ 728:
+/***/ 729:
 /***/ (function(module, exports) {
 
 /*
@@ -367,13 +367,13 @@ function updateLink(linkElement, obj) {
 
 /***/ }),
 
-/***/ 732:
+/***/ 733:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(397);
+module.exports = __webpack_require__(398);
 
 
 /***/ })
 
-},[732]);
+},[733]);
 //# sourceMappingURL=styles.bundle.map

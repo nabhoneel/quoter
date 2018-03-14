@@ -16,6 +16,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ValidateService } from './services/validate.service';
 import { AuthenticationService } from './services/authentication.service';
 import { QuotationService } from './services/quotation.service';
+import { BackendService } from './services/backend.service';
 import { AuthGuard } from './guards/auth.guard';
 import { FooterComponent } from './components/footer/footer.component';
 
@@ -49,7 +50,8 @@ const appRoutes: Routes = [
       ValidateService,
       AuthenticationService,
       AuthGuard,
-      QuotationService
+      QuotationService,
+      BackendService
   ],
   bootstrap: [AppComponent]
 })

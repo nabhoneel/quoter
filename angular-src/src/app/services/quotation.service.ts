@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { BackendService } from './backend.service';
 
 @Injectable()
 export class QuotationService {
 
-    constructor(private http: Http) { }
+    constructor(private http: Http, private path: BackendService) { }
 
     saveQuote(quote) {
         let headers = new Headers();
@@ -35,7 +36,7 @@ export class QuotationService {
         console.log(newQuote);
 
         return this.http.post(
-            'api/quote',
+            this.path.getPath() + 'api/quote',
             newQuote,
             {headers: headers}
         ).map(res => res.json());
@@ -46,7 +47,7 @@ export class QuotationService {
         headers.append('Content-Type', 'application/json');
 
         return this.http.delete(
-            "api/quote" + "/" + id,
+            this.path.getPath() + 'api/quote/' + id,
             {headers: headers})
         .map(res => res.json());
     }
