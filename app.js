@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 //connect to MongoDB:
-mongoose.connect('mongodb://localhost/quoter');
+mongoose.connect('mongodb://nabhoneelm:nabhoneelm@ds111279.mlab.com:11279/quoter');
+
 mongoose.Promise = global.Promise;
 
 //app setup:
