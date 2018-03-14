@@ -1,0 +1,18 @@
+<body class="text-center">
+    <form class="form-signin" (submit)="onLoginSubmit()">
+        <img class="mb-4" src="../../../favicon.ico" alt="" width="100">
+        <h1 class="h3 mb-3 font-weight-normal">First and foremost, sign in</h1>
+
+        <input type="text" [(ngModel)]="username" class="form-control" name="username" placeholder="Username">
+        <input type="password" [(ngModel)]="password" class="form-control" name="password" placeholder="password">
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+
+        <br>
+        <div *ngIf = "invalid">
+            <div class="alert alert-warning" role="alert">
+              {{errorMessage}}
+            </div>
+        </div>
+    </form>
+</body>

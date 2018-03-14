@@ -1,0 +1,31 @@
+.quoteCard {
+    margin: 1em 0;
+}
+
+.card-body {
+    text-align: center;
+}
+
+.table {
+    text-align: center;
+}
+
+.col-sm-5 {
+    text-align: right;
+}
+
+.alert {
+    padding: 0.50rem 1rem;
+    margin-bottom: 0;
+}
+
+.jumbotron {
+    text-align: center;
+    font-family: Raleway;
+    color: #b1b1b1;
+    line-height: 1em;
+}
+
+.jumbotron h1 {
+    font-size: 4em !important;
+}

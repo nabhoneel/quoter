@@ -1,0 +1,95 @@
+<form [formGroup]="quotationForm" novalidate (ngSubmit) = "saveQuote()">
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="form-group form-row" style="text-align: center;">
+                <div class="col-sm-12"><input type="text" formControlName="client" class="form-control" placeholder="client's name"></div>
+            </div>
+
+            <div formArrayName = "crew">
+                <div>
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">type</th>
+                                <th scope="col">category</th>
+                                <th scope="col">unit cost</th>
+                                <th scope="col">units</th>
+                                <th scope="col">cost</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody *ngFor = "let crew of quotationForm.controls.crew.controls; let i=index">
+                            <tr [formGroupName] = "i">
+                                <th scope="row">{{i + 1}}</th>
+                                <td><input type="text" class="form-control" formControlName="type"></td>
+                                <td><input type="text" class="form-control" formControlName="category"></td>
+                                <td><input type="text" class="form-control" formControlName="unitCost"></td>
+                                <td><input type="text" class="form-control" formControlName="units"></td>
+                                <td><input type="text" class="form-control" formControlName="cost"></td>
+                                <td><span *ngIf="quotationForm.controls.crew.controls.length > 1" (click)="removeCrew(i)"><i class="far fa-times-circle" ></i></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <a (click)="addCrew()" class="btn btn-outline-primary" role="button">
+                Add crew
+            </a>
+
+            <div formArrayName = "equipments">
+                <div>
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">type</th>
+                                <th scope="col">category</th>
+                                <th scope="col">unit cost</th>
+                                <th scope="col">units</th>
+                                <th scope="col">cost</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody *ngFor = "let crew of quotationForm.controls.equipments.controls; let i=index">
+                            <tr [formGroupName] = "i">
+                                <th scope="row">{{i + 1}}</th>
+                                <td><input type="text" class="form-control" formControlName="type"></td>
+                                <td><input type="text" class="form-control" formControlName="category"></td>
+                                <td><input type="text" class="form-control" formControlName="unitCost"></td>
+                                <td><input type="text" class="form-control" formControlName="units"></td>
+                                <td><input type="text" class="form-control" formControlName="cost"></td>
+                                <td><span *ngIf="quotationForm.controls.equipments.controls.length > 1" (click)="removeEquipment(i)"><i class="far fa-times-circle" ></i></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <a (click)="addEquipment()" class="btn btn-outline-primary" role="button">
+                Add equipment
+            </a>
+
+            <div class="form-group form-row" style="text-align: center;">
+                <input type="text" formControlName="productionTotal" class="form-control" placeholder="total production cost" style="margin: 1em;">
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <input type="text" formControlName="numberOfVideos" class="form-control" placeholder="number of videos">
+            <input type="text" formControlName="averageLength" class="form-control" placeholder="average length">
+            <input type="text" formControlName="editStyle" class="form-control" placeholder="edit style">
+            <input type="text" formControlName="complexity" class="form-control" placeholder="complexity">
+            <input type="text" formControlName="unitCost" class="form-control" placeholder="unit cost">
+            <input type="text" formControlName="postProductionTotal" class="form-control" placeholder="total post production cost">
+
+            <div class="row">
+                <div class="col-sm-6"><input type="text" formControlName="total" class="form-control" placeholder="total cost"></div>
+                <div class="col-sm-6"><input type="text" formControlName="quote" class="form-control" placeholder="quotation"></div>
+            </div>
+            <button type="submit" class="btn btn-danger">Save</button>
+        </div>
+    </div>
+
+</form>

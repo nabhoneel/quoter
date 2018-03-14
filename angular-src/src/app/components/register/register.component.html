@@ -1,0 +1,31 @@
+<body class="text-center">
+    <form class="form-signin" (submit)="onRegisterSubmit()">
+        <img class="mb-4" src="../../../favicon.ico" alt="" width="100">
+        <h1 class="h3 mb-3 font-weight-normal">Create an account</h1>
+
+        <input type="name" [(ngModel)]="name" class="form-control" name="name" placeholder="Name">
+        <input type="email" [(ngModel)]="email" class="form-control" name="email" placeholder="Email address">
+        <input type="text" [(ngModel)]="username" class="form-control" name="username" placeholder="Username">
+        <input type="password" [(ngModel)]="password" class="form-control" name="password" placeholder="password">
+
+        <div *ngIf = "!isValid()">
+            <div class="alert alert-warning" role="alert">
+              All fields must be filled
+            </div>
+        </div>
+
+        <div *ngIf = "registered">
+            <div class="alert alert-success" role="alert">
+              You have been registered!
+              <img class="mb-4" src="../../img/loading.gif" alt="" width="50">
+            </div>
+        </div>
+        <div *ngIf = "notRegistered">
+            <div class="alert alert-warning" role="alert">
+              Something went wrong :(
+            </div>
+        </div>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+    </form>
+</body>

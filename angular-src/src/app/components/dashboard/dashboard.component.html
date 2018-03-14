@@ -1,0 +1,110 @@
+<div *ngIf = "isEmpty()">
+    <div class="jumbotron">
+        <h1>This seems pretty useless now (I know).<br><br>Take baby steps.<br>Create a new quotation document</h1>
+    </div>
+</div>
+
+<div *ngIf = "quotes">
+    <div class="row">
+        <div *ngFor = "let quote of quotes; let i=index" class="col-sm-4 quoteCard">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{dates[i]}}</h5>
+                    <p class="card-text">{{quote.client}}</p>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" [attr.data-target]="'#' + i">Expand</button>
+                </div>
+            </div>
+
+            <div class="modal fade" [id]="i" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{quote.client}}<br>[{{fullDates[i]}}]</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="removeWarning()">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row" style="text-align: center;">
+                                <div class="col-sm-6">
+                                    <h2>total: {{quote.total}}</h2>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h2>quotation: {{quote.quote}}</h2>
+                                </div>
+                            </div>
+                            <h2>crew</h2>
+                            <table class="table table-sm">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">type</th>
+                                        <th scope="col">category</th>
+                                        <th scope="col">unit cost</th>
+                                        <th scope="col">units</th>
+                                        <th scope="col">cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngFor = "let p of quote.production.crew">
+                                    <tr>
+                                        <td>{{p.type}}</td>
+                                        <td>{{p.category}}</td>
+                                        <td>{{p.unitCost}}</td>
+                                        <td>{{p.units}}</td>
+                                        <td>{{p.cost}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h2>equipments</h2>
+                            <table class="table table-sm">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">type</th>
+                                        <th scope="col">category</th>
+                                        <th scope="col">unit cost</th>
+                                        <th scope="col">units</th>
+                                        <th scope="col">cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngFor = "let p of quote.production.equipments">
+                                    <tr>
+                                        <td>{{p.type}}</td>
+                                        <td>{{p.category}}</td>
+                                        <td>{{p.unitCost}}</td>
+                                        <td>{{p.units}}</td>
+                                        <td>{{p.cost}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h2>post production</h2>
+                            <div class="row" style="padding: 0 3em;">
+                                <div class="col-sm-7">number of videos</div>
+                                <div class="col-sm-5">{{quote.postProduction.numberOfVideos}}</div>
+                                <div class="col-sm-7">average length</div>
+                                <div class="col-sm-5">{{quote.postProduction.averageLength}}</div>
+                                <div class="col-sm-7">edit style</div>
+                                <div class="col-sm-5">{{quote.postProduction.editStyle}}</div>
+                                <div class="col-sm-7">complexity</div>
+                                <div class="col-sm-5">{{quote.postProduction.complexity}}</div>
+                                <div class="col-sm-7">unit cost</div>
+                                <div class="col-sm-5">{{quote.postProduction.unitCost}}</div>
+                                <div class="col-sm-7">total</div>
+                                <div class="col-sm-5">{{quote.postProduction.total}}</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-warning" (click)="showDeleteWarning()">Delete</button>
+                            <button type="button" class="btn btn-secondary" (click)="removeWarning()" data-dismiss="modal">Close</button>
+                            <div *ngIf = "deleteWarning">
+                                Are you sure you want to delete this?&nbsp;
+                                <a class="btn btn-info" (click)="deleteQuote(quote._id, i)" data-dismiss="modal">Yes</a>
+                                <a class="btn btn-danger" (click)="removeWarning()">Not really</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
