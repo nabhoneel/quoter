@@ -19,6 +19,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var BackendService = (function () {
     function BackendService() {
         this.path = "";
+        //this.path = "http://localhost:8080/";
     }
     BackendService.prototype.getPath = function () {
         return this.path;
