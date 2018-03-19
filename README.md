@@ -1,2 +1,2 @@
-# Quoter
-MEAN app for making quotations & then invoices (for The Anon. Pro)
+# quoter
+MEAN app for making quotations &amp; then invoices (for The Anon. Pro)
