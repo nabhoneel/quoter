@@ -8,6 +8,7 @@ const config = require('../config/database');
 //models:
 const Quote = require('../models/money');
 const User = require('../models/user');
+const Item = require('../models/quotationData');
 
 //default route:
 router.get('/', (req, res, next) => {
@@ -83,6 +84,16 @@ router.put('/quote/:id', (req, res, next) => {
 //delete quotation document:
 router.delete('/quote/:id', (req, res, next) => {
     Quote.deleteOne(req, res);
+});
+
+//type of crew:
+router.get('/quote/crewdata', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+    Item.getCrewData(res);
+});
+
+//type of equipment:
+router.get('/quote/equipmentdata/', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+    Item.getEquipmentData(res);
 });
 
 module.exports = router;

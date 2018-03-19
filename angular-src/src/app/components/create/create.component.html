@@ -23,11 +23,27 @@
                         <tbody *ngFor = "let crew of quotationForm.controls.crew.controls; let i=index">
                             <tr [formGroupName] = "i">
                                 <th scope="row">{{i + 1}}</th>
-                                <td><input type="text" class="form-control" formControlName="type"></td>
-                                <td><input type="text" class="form-control" formControlName="category"></td>
-                                <td><input type="text" class="form-control" formControlName="unitCost"></td>
-                                <td><input type="text" class="form-control" formControlName="units"></td>
-                                <td><input type="text" class="form-control" formControlName="cost"></td>
+                                <td>
+                                    <select class="form-control" formControlName="type" (change)="chooseItemType(i, 'crew')">
+                                        <option *ngFor = "let crew of crewType" [value]="crew">
+                                                {{ crew }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-control" formControlName="category" (change)="showUnitCost(i, 'crew');">
+                                        <option *ngFor = "let crew of crewSub[chosenCrewList[i]]; let j=index" [value]="crew.name">
+                                                {{ crew.name }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" formControlName="unitCost" [value]="quotationForm.value.crew[i].unitCost" [(ngModel)]="quotationForm.value.crew[i].unitCost">
+                                </td>
+                                <td><input type="number" class="form-control" formControlName="units"></td>
+                                <td>
+                                    <input type="number" class="form-control" formControlName="cost" [value]="quotationForm.value.crew[i].unitCost*quotationForm.value.crew[i].units" [(ngModel)]="quotationForm.value.crew[i].unitCost*quotationForm.value.crew[i].units">
+                                </td>
                                 <td><span *ngIf="quotationForm.controls.crew.controls.length > 1" (click)="removeCrew(i)"><i class="far fa-times-circle" ></i></span></td>
                             </tr>
                         </tbody>
@@ -56,11 +72,27 @@
                         <tbody *ngFor = "let crew of quotationForm.controls.equipments.controls; let i=index">
                             <tr [formGroupName] = "i">
                                 <th scope="row">{{i + 1}}</th>
-                                <td><input type="text" class="form-control" formControlName="type"></td>
-                                <td><input type="text" class="form-control" formControlName="category"></td>
-                                <td><input type="text" class="form-control" formControlName="unitCost"></td>
-                                <td><input type="text" class="form-control" formControlName="units"></td>
-                                <td><input type="text" class="form-control" formControlName="cost"></td>
+                                <td>
+                                    <select class="form-control" formControlName="type" (change)="chooseItemType(i, 'equipment')">
+                                        <option *ngFor = "let equipment of equipmentType" [value]="equipment">
+                                                {{ equipment }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-control" formControlName="category" (change)="showUnitCost(i, 'equipment');">
+                                        <option *ngFor = "let equipment of equipmentSub[chosenEquipmentList[i]]; let j=index" [value]="equipment.name">
+                                                {{ equipment.name }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" formControlName="unitCost" [value]="quotationForm.value.equipments[i].unitCost" [(ngModel)]="quotationForm.value.equipments[i].unitCost">
+                                </td>
+                                <td><input type="number" class="form-control" formControlName="units"></td>
+                                <td>
+                                    <input type="number" class="form-control" formControlName="cost" [value]="quotationForm.value.equipments[i].unitCost * quotationForm.value.equipments[i].units" [(ngModel)]="quotationForm.value.equipments[i].unitCost * quotationForm.value.equipments[i].units">
+                                </td>
                                 <td><span *ngIf="quotationForm.controls.equipments.controls.length > 1" (click)="removeEquipment(i)"><i class="far fa-times-circle" ></i></span></td>
                             </tr>
                         </tbody>
@@ -73,7 +105,7 @@
             </a>
 
             <div class="form-group form-row" style="text-align: center;">
-                <input type="text" formControlName="productionTotal" class="form-control" placeholder="total production cost" style="margin: 1em;">
+                <input type="text" readonly formControlName="productionTotal" class="form-control" placeholder="total production cost" style="margin: 1em;" [value] = "getTotalProductionCost()">
             </div>
         </div>
         <div class="col-sm-5">

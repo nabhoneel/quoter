@@ -43,6 +43,7 @@ var BackendService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(376);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__backend_service__ = __webpack_require__(220);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authentication_service__ = __webpack_require__(64);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return QuotationService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -57,10 +58,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var QuotationService = (function () {
-    function QuotationService(http, path) {
+    function QuotationService(http, path, authService) {
         this.http = http;
         this.path = path;
+        this.authService = authService;
     }
     QuotationService.prototype.saveQuote = function (quote) {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["Headers"]();
@@ -95,12 +98,30 @@ var QuotationService = (function () {
         return this.http.delete(this.path.getPath() + 'api/quote/' + id, { headers: headers })
             .map(function (res) { return res.json(); });
     };
+    QuotationService.prototype.getCrew = function () {
+        var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["Headers"]();
+        this.authService.loadToken();
+        headers.append('Authorization', this.authService.authToken);
+        headers.append('Content-type', 'application/json');
+        return this.http.get(this.path.getPath() + 'api/quote/crewdata/', {
+            headers: headers
+        }).map(function (res) { return res.json(); });
+    };
+    QuotationService.prototype.getEquipment = function () {
+        var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["Headers"]();
+        this.authService.loadToken();
+        headers.append('Authorization', this.authService.authToken);
+        headers.append('Content-type', 'application/json');
+        return this.http.get(this.path.getPath() + 'api/quote/equipmentdata/', {
+            headers: headers
+        }).map(function (res) { return res.json(); });
+    };
     QuotationService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["Http"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["Http"]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__backend_service__["a" /* BackendService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__backend_service__["a" /* BackendService */]) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["Http"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["Http"]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__backend_service__["a" /* BackendService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__backend_service__["a" /* BackendService */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_4__authentication_service__["a" /* AuthenticationService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__authentication_service__["a" /* AuthenticationService */]) === 'function' && _c) || Object])
     ], QuotationService);
     return QuotationService;
-    var _a, _b;
+    var _a, _b, _c;
 }());
 //# sourceMappingURL=/home/nabhoneelm/mean/quoter/angular-src/src/quotation.service.js.map
 
@@ -218,7 +239,7 @@ var AppComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(307);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(148);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(512);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_navbar_navbar_component__ = __webpack_require__(519);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_register_register_component__ = __webpack_require__(520);
@@ -227,7 +248,7 @@ var AppComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__components_create_create_component__ = __webpack_require__(514);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__components_home_home_component__ = __webpack_require__(517);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__services_validate_service__ = __webpack_require__(336);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__services_authentication_service__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__services_authentication_service__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__services_quotation_service__ = __webpack_require__(221);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__services_backend_service__ = __webpack_require__(220);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__guards_auth_guard__ = __webpack_require__(521);
@@ -332,13 +353,46 @@ var CreateComponent = (function () {
         this.save = save;
     }
     CreateComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.crewType = [];
+        this.crewSub = [];
+        this.save.getCrew().subscribe(function (data) {
+            var x = data.data;
+            for (var i = 0; i < x.length; i++) {
+                _this.crewType.push(x[i.toString()].item);
+                var type = [];
+                for (var j = 0; j < x[i.toString()].options.length; j++)
+                    type.push({
+                        name: x[i.toString()].options[j.toString()].name,
+                        cost: x[i.toString()].options[j.toString()].cost
+                    });
+                _this.crewSub.push(type);
+            }
+        });
+        this.chosenCrewList = [];
+        this.equipmentType = [];
+        this.equipmentSub = [];
+        this.save.getEquipment().subscribe(function (data) {
+            var x = data.data;
+            for (var i = 0; i < x.length; i++) {
+                _this.equipmentType.push(x[i.toString()].item);
+                var type = [];
+                for (var j = 0; j < x[i.toString()].options.length; j++)
+                    type.push({
+                        name: x[i.toString()].options[j.toString()].name,
+                        cost: x[i.toString()].options[j.toString()].cost
+                    });
+                _this.equipmentSub.push(type);
+            }
+        });
+        this.chosenEquipmentList = [];
         this.quotationForm = this._fb.group({
             client: [''],
             crew: this._fb.array([
-                this.initCrew()
+                this.initItem()
             ]),
             equipments: this._fb.array([
-                this.initEquipments()
+                this.initItem()
             ]),
             productionTotal: [''],
             numberOfVideos: [''],
@@ -351,7 +405,7 @@ var CreateComponent = (function () {
             quote: ['']
         });
     };
-    CreateComponent.prototype.initCrew = function () {
+    CreateComponent.prototype.initItem = function () {
         //the general item schema (crew/equipments):
         return this._fb.group({
             type: [''],
@@ -361,15 +415,66 @@ var CreateComponent = (function () {
             cost: ['']
         });
     };
-    CreateComponent.prototype.initEquipments = function () {
-        //the general item schema (crew/equipments):
-        return this._fb.group({
-            type: [''],
-            category: [''],
-            unitCost: [''],
-            units: [''],
-            cost: ['']
-        });
+    CreateComponent.prototype.chooseItemType = function (index, type) {
+        if (type == "crew") {
+            var x = this.quotationForm.value.crew[index.toString()].type;
+            this.chosenCrewList[index] = this.crewType.indexOf(x);
+        }
+        else {
+            var x = this.quotationForm.value.equipments[index.toString()].type;
+            this.chosenEquipmentList[index] = this.equipmentType.indexOf(x);
+        }
+    };
+    CreateComponent.prototype.showUnitCost = function (index, t) {
+        //getting the type of crew/equipments:
+        var type = (t == "crew") ? this.quotationForm.value.crew[index.toString()].type : this.quotationForm.value.equipments[index.toString()].type;
+        //gettingt the sub-type of crew/equipments:
+        var category = (t == "crew") ? this.quotationForm.value.crew[index.toString()].category : this.quotationForm.value.equipments[index.toString()].category;
+        //number of options available within each crew/equipment type:
+        var l = (t == "crew") ? this.crewSub[this.crewType.indexOf(type)].length : this.equipmentSub[this.equipmentType.indexOf(type)].length;
+        for (var i = 0; i < l; i++) {
+            if (t == "crew") {
+                if (category == this.crewSub[this.crewType.indexOf(type)][i]["name"]) {
+                    this.quotationForm.value.crew[index.toString()].unitCost = this.crewSub[this.crewType.indexOf(type)][i]["cost"];
+                    break;
+                }
+            }
+            else {
+                if (category == this.equipmentSub[this.equipmentType.indexOf(type)][i]["name"]) {
+                    this.quotationForm.value.equipments[index.toString()].unitCost = this.equipmentSub[this.equipmentType.indexOf(type)][i]["cost"];
+                    break;
+                }
+            }
+        }
+    };
+    CreateComponent.prototype.getTotalProductionCost = function () {
+        var sum = 0;
+        for (var i = 0; i < this.quotationForm.value.crew.length; i++)
+            sum += parseInt(this.quotationForm.value.crew[i.toString()].cost);
+        console.log(sum);
+        for (var i = 0; i < this.quotationForm.value.equipments.length; i++)
+            sum += parseInt(this.quotationForm.value.equipments[i.toString()].cost);
+        return sum;
+    };
+    CreateComponent.prototype.addCrew = function () {
+        var control = this.quotationForm.controls['crew'];
+        control.push(this.initItem());
+        this.chosenCrewList.push(-1);
+    };
+    CreateComponent.prototype.removeCrew = function (i) {
+        var control = this.quotationForm.controls['crew'];
+        control.removeAt(i);
+        this.chosenCrewList.splice(i, 1);
+    };
+    CreateComponent.prototype.addEquipment = function () {
+        var control = this.quotationForm.controls['equipments'];
+        control.push(this.initItem());
+        this.chosenEquipmentList.push(-1);
+    };
+    CreateComponent.prototype.removeEquipment = function (i) {
+        var control = this.quotationForm.controls['equipments'];
+        control.removeAt(i);
+        this.chosenEquipmentList.splice(i, 1);
     };
     CreateComponent.prototype.saveQuote = function () {
         this.save.saveQuote(this.quotationForm.value).subscribe(function (data) {
@@ -380,24 +485,6 @@ var CreateComponent = (function () {
                 console.log("there was some error [" + data.msg + "]");
             }
         });
-    };
-    CreateComponent.prototype.addCrew = function () {
-        // add address to the list
-        var control = this.quotationForm.controls['crew'];
-        control.push(this.initCrew());
-    };
-    CreateComponent.prototype.removeCrew = function (i) {
-        // remove address from the list
-        var control = this.quotationForm.controls['crew'];
-        control.removeAt(i);
-    };
-    CreateComponent.prototype.addEquipment = function () {
-        var control = this.quotationForm.controls['equipments'];
-        control.push(this.initCrew());
-    };
-    CreateComponent.prototype.removeEquipment = function (i) {
-        var control = this.quotationForm.controls['equipments'];
-        control.removeAt(i);
     };
     CreateComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
@@ -419,9 +506,9 @@ var CreateComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_authentication_service__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_authentication_service__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_quotation_service__ = __webpack_require__(221);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(78);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DashboardComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -573,8 +660,8 @@ var HomeComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_authentication_service__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_authentication_service__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(78);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -633,8 +720,8 @@ var LoginComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_authentication_service__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_authentication_service__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(78);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return NavbarComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -680,8 +767,8 @@ var NavbarComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_validate_service__ = __webpack_require__(336);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_authentication_service__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_authentication_service__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(78);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RegisterComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -738,6 +825,9 @@ var RegisterComponent = (function () {
         else
             return true;
     };
+    RegisterComponent.prototype.changethis = function () {
+        this.name = "fageyeah";
+    };
     RegisterComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-register',
@@ -758,8 +848,8 @@ var RegisterComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(77);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_authentication_service__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(78);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_authentication_service__ = __webpack_require__(64);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AuthGuard; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -812,127 +902,7 @@ var environment = {
 
 /***/ }),
 
-/***/ 678:
-/***/ (function(module, exports) {
-
-module.exports = ".container {\n    margin: 2em auto;\n}\n"
-
-/***/ }),
-
-/***/ 679:
-/***/ (function(module, exports) {
-
-module.exports = ".col-sm-5 input[type=\"text\"] {\n    margin: 1em 0;\n}\n\ntable {\n    text-align: center;\n    margin: 1em 0;\n}\n"
-
-/***/ }),
-
-/***/ 680:
-/***/ (function(module, exports) {
-
-module.exports = ".quoteCard {\n    margin: 1em 0;\n}\n\n.card-body {\n    text-align: center;\n}\n\n.table {\n    text-align: center;\n}\n\n.col-sm-5 {\n    text-align: right;\n}\n\n.alert {\n    padding: 0.50rem 1rem;\n    margin-bottom: 0;\n}\n\n.jumbotron {\n    text-align: center;\n    font-family: Raleway;\n    color: #b1b1b1;\n    line-height: 1em;\n}\n\n.jumbotron h1 {\n    font-size: 4em !important;\n}\n"
-
-/***/ }),
-
-/***/ 681:
-/***/ (function(module, exports) {
-
-module.exports = "/* Sticky footer styles\n-------------------------------------------------- */\nhtml {\n  position: relative;\n  min-height: 100%;\n}\nbody {\n  margin-bottom: 60px; /* Margin bottom by footer height */\n}\n\n.footer {\n    position: relative;\n    bottom: 0;\n    width: 100%;\n    height: 60px; /* Set the fixed height of the footer here */\n    line-height: 60px; /* Vertically center the text there */\n    background-color: #f5f5f5;\n}\n\n@media screen and (min-width: 500px) {\n    .footer {\n        position: absolute;\n    }\n}\n"
-
-/***/ }),
-
-/***/ 682:
-/***/ (function(module, exports) {
-
-module.exports = ".jumbotron {\n    text-align: center;\n    font-family: Raleway;\n    color: #b1b1b1;\n    line-height: 1em;\n}\n\n.jumbotron h1 {\n    font-size: 4em !important;\n}\n"
-
-/***/ }),
-
-/***/ 683:
-/***/ (function(module, exports) {
-
-module.exports = "html,\nbody {\n  height: 100%;\n}\n\nbody {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n  -ms-flex-pack: center;\n  align-items: center;\n  justify-content: center;\n  padding-bottom: 40px;\n}\n\n.form-signin {\n  width: 100%;\n  max-width: 330px;\n  padding: 15px;\n  margin: 0 auto;\n}\n.form-signin .checkbox {\n  font-weight: 400;\n}\n.form-signin .form-control {\n  position: relative;\n  box-sizing: border-box;\n  height: auto;\n  padding: 10px;\n  font-size: 16px;\n}\n.form-signin input[type=\"text\"] {\n  margin-bottom: -1px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n}\n.form-signin input[type=\"password\"] {\n  margin-bottom: 10px;\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n"
-
-/***/ }),
-
-/***/ 684:
-/***/ (function(module, exports) {
-
-module.exports = ""
-
-/***/ }),
-
-/***/ 685:
-/***/ (function(module, exports) {
-
-module.exports = "html,\nbody {\n  height: 100%;\n}\n\nbody {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n  -ms-flex-pack: center;\n  align-items: center;\n  justify-content: center;\n  padding-bottom: 40px;\n}\n\n.form-signin {\n  width: 100%;\n  max-width: 330px;\n  padding: 15px;\n  margin: 0 auto;\n}\n.form-signin .checkbox {\n  font-weight: 400;\n}\n.form-signin .form-control {\n  position: relative;\n  box-sizing: border-box;\n  height: auto;\n  padding: 10px;\n  font-size: 16px;\n}\n.form-signin input[type=\"email\"], .form-signin input[type=\"text\"] {\n    margin-bottom: -1px;\n    border-radius: 0;\n}\n.form-signin input[type=\"name\"] {\n  margin-bottom: -1px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n}\n.form-signin input[type=\"password\"] {\n  margin-bottom: 10px;\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n"
-
-/***/ }),
-
-/***/ 686:
-/***/ (function(module, exports) {
-
-module.exports = "<app-navbar></app-navbar>\n<div class=\"container\">\n    <router-outlet></router-outlet>\n</div>\n<app-footer></app-footer>\n"
-
-/***/ }),
-
-/***/ 687:
-/***/ (function(module, exports) {
-
-module.exports = "<form [formGroup]=\"quotationForm\" novalidate (ngSubmit) = \"saveQuote()\">\n\n    <div class=\"row\">\n        <div class=\"col-sm-7\">\n            <div class=\"form-group form-row\" style=\"text-align: center;\">\n                <div class=\"col-sm-12\"><input type=\"text\" formControlName=\"client\" class=\"form-control\" placeholder=\"client's name\"></div>\n            </div>\n\n            <div formArrayName = \"crew\">\n                <div>\n                    <table class=\"table table-sm\">\n                        <thead class=\"thead-dark\">\n                            <tr>\n                                <th scope=\"col\">#</th>\n                                <th scope=\"col\">type</th>\n                                <th scope=\"col\">category</th>\n                                <th scope=\"col\">unit cost</th>\n                                <th scope=\"col\">units</th>\n                                <th scope=\"col\">cost</th>\n                                <th scope=\"col\"></th>\n                            </tr>\n                        </thead>\n                        <tbody *ngFor = \"let crew of quotationForm.controls.crew.controls; let i=index\">\n                            <tr [formGroupName] = \"i\">\n                                <th scope=\"row\">{{i + 1}}</th>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"type\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"category\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"unitCost\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"units\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"cost\"></td>\n                                <td><span *ngIf=\"quotationForm.controls.crew.controls.length > 1\" (click)=\"removeCrew(i)\"><i class=\"far fa-times-circle\" ></i></span></td>\n                            </tr>\n                        </tbody>\n                    </table>\n                </div>\n            </div>\n\n            <a (click)=\"addCrew()\" class=\"btn btn-outline-primary\" role=\"button\">\n                Add crew\n            </a>\n\n            <div formArrayName = \"equipments\">\n                <div>\n                    <table class=\"table table-sm\">\n                        <thead class=\"thead-dark\">\n                            <tr>\n                                <th scope=\"col\">#</th>\n                                <th scope=\"col\">type</th>\n                                <th scope=\"col\">category</th>\n                                <th scope=\"col\">unit cost</th>\n                                <th scope=\"col\">units</th>\n                                <th scope=\"col\">cost</th>\n                                <th scope=\"col\"></th>\n                            </tr>\n                        </thead>\n                        <tbody *ngFor = \"let crew of quotationForm.controls.equipments.controls; let i=index\">\n                            <tr [formGroupName] = \"i\">\n                                <th scope=\"row\">{{i + 1}}</th>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"type\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"category\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"unitCost\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"units\"></td>\n                                <td><input type=\"text\" class=\"form-control\" formControlName=\"cost\"></td>\n                                <td><span *ngIf=\"quotationForm.controls.equipments.controls.length > 1\" (click)=\"removeEquipment(i)\"><i class=\"far fa-times-circle\" ></i></span></td>\n                            </tr>\n                        </tbody>\n                    </table>\n                </div>\n            </div>\n\n            <a (click)=\"addEquipment()\" class=\"btn btn-outline-primary\" role=\"button\">\n                Add equipment\n            </a>\n\n            <div class=\"form-group form-row\" style=\"text-align: center;\">\n                <input type=\"text\" formControlName=\"productionTotal\" class=\"form-control\" placeholder=\"total production cost\" style=\"margin: 1em;\">\n            </div>\n        </div>\n        <div class=\"col-sm-5\">\n            <input type=\"text\" formControlName=\"numberOfVideos\" class=\"form-control\" placeholder=\"number of videos\">\n            <input type=\"text\" formControlName=\"averageLength\" class=\"form-control\" placeholder=\"average length\">\n            <input type=\"text\" formControlName=\"editStyle\" class=\"form-control\" placeholder=\"edit style\">\n            <input type=\"text\" formControlName=\"complexity\" class=\"form-control\" placeholder=\"complexity\">\n            <input type=\"text\" formControlName=\"unitCost\" class=\"form-control\" placeholder=\"unit cost\">\n            <input type=\"text\" formControlName=\"postProductionTotal\" class=\"form-control\" placeholder=\"total post production cost\">\n\n            <div class=\"row\">\n                <div class=\"col-sm-6\"><input type=\"text\" formControlName=\"total\" class=\"form-control\" placeholder=\"total cost\"></div>\n                <div class=\"col-sm-6\"><input type=\"text\" formControlName=\"quote\" class=\"form-control\" placeholder=\"quotation\"></div>\n            </div>\n            <button type=\"submit\" class=\"btn btn-danger\">Save</button>\n        </div>\n    </div>\n\n</form>\n"
-
-/***/ }),
-
-/***/ 688:
-/***/ (function(module, exports) {
-
-module.exports = "<div *ngIf = \"isEmpty()\">\n    <div class=\"jumbotron\">\n        <h1>This seems pretty useless now (I know).<br><br>Take baby steps.<br>Create a new quotation document</h1>\n    </div>\n</div>\n\n<div *ngIf = \"quotes\">\n    <div class=\"row\">\n        <div *ngFor = \"let quote of quotes; let i=index\" class=\"col-sm-4 quoteCard\">\n            <div class=\"card\">\n                <div class=\"card-body\">\n                    <h5 class=\"card-title\">{{dates[i]}}</h5>\n                    <p class=\"card-text\">{{quote.client}}</p>\n                    <button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" [attr.data-target]=\"'#' + i\">Expand</button>\n                </div>\n            </div>\n\n            <div class=\"modal fade\" [id]=\"i\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"exampleModalCenterTitle\" aria-hidden=\"true\">\n                <div class=\"modal-dialog modal-lg modal-dialog-centered\" role=\"document\">\n                    <div class=\"modal-content\">\n                        <div class=\"modal-header\">\n                            <h5 class=\"modal-title\">{{quote.client}}<br>[{{fullDates[i]}}]</h5>\n                            <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\" (click)=\"removeWarning()\">\n                                <span aria-hidden=\"true\">&times;</span>\n                            </button>\n                        </div>\n                        <div class=\"modal-body\">\n                            <div class=\"row\" style=\"text-align: center;\">\n                                <div class=\"col-sm-6\">\n                                    <h2>total: {{quote.total}}</h2>\n                                </div>\n                                <div class=\"col-sm-6\">\n                                    <h2>quotation: {{quote.quote}}</h2>\n                                </div>\n                            </div>\n                            <h2>crew</h2>\n                            <table class=\"table table-sm\">\n                                <thead class=\"thead-dark\">\n                                    <tr>\n                                        <th scope=\"col\">type</th>\n                                        <th scope=\"col\">category</th>\n                                        <th scope=\"col\">unit cost</th>\n                                        <th scope=\"col\">units</th>\n                                        <th scope=\"col\">cost</th>\n                                    </tr>\n                                </thead>\n                                <tbody *ngFor = \"let p of quote.production.crew\">\n                                    <tr>\n                                        <td>{{p.type}}</td>\n                                        <td>{{p.category}}</td>\n                                        <td>{{p.unitCost}}</td>\n                                        <td>{{p.units}}</td>\n                                        <td>{{p.cost}}</td>\n                                    </tr>\n                                </tbody>\n                            </table>\n\n                            <h2>equipments</h2>\n                            <table class=\"table table-sm\">\n                                <thead class=\"thead-dark\">\n                                    <tr>\n                                        <th scope=\"col\">type</th>\n                                        <th scope=\"col\">category</th>\n                                        <th scope=\"col\">unit cost</th>\n                                        <th scope=\"col\">units</th>\n                                        <th scope=\"col\">cost</th>\n                                    </tr>\n                                </thead>\n                                <tbody *ngFor = \"let p of quote.production.equipments\">\n                                    <tr>\n                                        <td>{{p.type}}</td>\n                                        <td>{{p.category}}</td>\n                                        <td>{{p.unitCost}}</td>\n                                        <td>{{p.units}}</td>\n                                        <td>{{p.cost}}</td>\n                                    </tr>\n                                </tbody>\n                            </table>\n\n                            <h2>post production</h2>\n                            <div class=\"row\" style=\"padding: 0 3em;\">\n                                <div class=\"col-sm-7\">number of videos</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.numberOfVideos}}</div>\n                                <div class=\"col-sm-7\">average length</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.averageLength}}</div>\n                                <div class=\"col-sm-7\">edit style</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.editStyle}}</div>\n                                <div class=\"col-sm-7\">complexity</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.complexity}}</div>\n                                <div class=\"col-sm-7\">unit cost</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.unitCost}}</div>\n                                <div class=\"col-sm-7\">total</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.total}}</div>\n                            </div>\n                        </div>\n                        <div class=\"modal-footer\">\n                            <button type=\"button\" class=\"btn btn-warning\" (click)=\"showDeleteWarning()\">Delete</button>\n                            <button type=\"button\" class=\"btn btn-secondary\" (click)=\"removeWarning()\" data-dismiss=\"modal\">Close</button>\n                            <div *ngIf = \"deleteWarning\">\n                                Are you sure you want to delete this?&nbsp;\n                                <a class=\"btn btn-info\" (click)=\"deleteQuote(quote._id, i)\" data-dismiss=\"modal\">Yes</a>\n                                <a class=\"btn btn-danger\" (click)=\"removeWarning()\">Not really</a>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>\n"
-
-/***/ }),
-
-/***/ 689:
-/***/ (function(module, exports) {
-
-module.exports = "<footer class=\"footer\">\n  <div class=\"container\">\n    <div class=\"row\" style=\"text-align: center;\">\n        <div class=\"col-sm-6\">\n            Anon. Tech\n        </div>\n        <div class=\"col-sm-6\">\n            &copy;{{ date }}\n        </div>\n    </div>\n  </div>\n</footer>\n"
-
-/***/ }),
-
-/***/ 690:
-/***/ (function(module, exports) {
-
-module.exports = "<div class=\"jumbotron\">\n    <h1>\n        How to complete making a quotation:\n        <br>\n        Use <img src=\"../../../favicon.ico\" width=80>uoter.\n    </h1><br>\n    <h2>Seriously though, <a [routerLink]=\"['/register']\">register</a> yourself, and then <a [routerLink]=\"['/login']\">login</a></h2>\n</div>\n"
-
-/***/ }),
-
-/***/ 691:
-/***/ (function(module, exports) {
-
-module.exports = "<body class=\"text-center\">\n    <form class=\"form-signin\" (submit)=\"onLoginSubmit()\">\n        <img class=\"mb-4\" src=\"../../../favicon.ico\" alt=\"\" width=\"100\">\n        <h1 class=\"h3 mb-3 font-weight-normal\">First and foremost, sign in</h1>\n\n        <input type=\"text\" [(ngModel)]=\"username\" class=\"form-control\" name=\"username\" placeholder=\"Username\">\n        <input type=\"password\" [(ngModel)]=\"password\" class=\"form-control\" name=\"password\" placeholder=\"password\">\n\n        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Login Yo</button>\n\n        <br>\n        <div *ngIf = \"invalid\">\n            <div class=\"alert alert-warning\" role=\"alert\">\n              {{ errorMessage }}\n            </div>\n        </div>\n    </form>\n</body>\n"
-
-/***/ }),
-
-/***/ 692:
-/***/ (function(module, exports) {
-
-module.exports = "<nav class=\"navbar navbar-expand-md navbar-light\">\n    <div class=\"container\">\n        <a class=\"navbar-brand\" [routerLink]=\"['/']\">Quoter</a>\n        <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#navbarCollapse\" aria-controls=\"navbarCollapse\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">\n            <span class=\"navbar-toggler-icon\"></span>\n        </button>\n        <div class=\"collapse navbar-collapse justify-content-between\" id=\"navbarCollapse\">\n            <ul class=\"navbar-nav navbar-left\">\n                <li *ngIf=\"authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/dashboard']\">Dashboard</a></li>\n                <li *ngIf=\"authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/create']\">New Quotation</a></li>\n            </ul>\n            <ul class=\"navbar-nav navbar-right\">\n                <li *ngIf=\"!authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/login']\">Login</a></li>\n                <li *ngIf=\"!authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/register']\">Register</a></li>\n                <li *ngIf=\"authService.loggedIn()\"><a class=\"nav-link\" style=\"cursor: pointer;\" (click)=\"onLogoutClick()\">Logout</a></li>\n            </ul>\n        </div>\n    </div>\n</nav>\n"
-
-/***/ }),
-
-/***/ 693:
-/***/ (function(module, exports) {
-
-module.exports = "<body class=\"text-center\">\n    <form class=\"form-signin\" (submit)=\"onRegisterSubmit()\">\n        <img class=\"mb-4\" src=\"../../../favicon.ico\" alt=\"\" width=\"100\">\n        <h1 class=\"h3 mb-3 font-weight-normal\">Create an account</h1>\n\n        <input type=\"name\" [(ngModel)]=\"name\" class=\"form-control\" name=\"name\" placeholder=\"Name\">\n        <input type=\"email\" [(ngModel)]=\"email\" class=\"form-control\" name=\"email\" placeholder=\"Email address\">\n        <input type=\"text\" [(ngModel)]=\"username\" class=\"form-control\" name=\"username\" placeholder=\"Username\">\n        <input type=\"password\" [(ngModel)]=\"password\" class=\"form-control\" name=\"password\" placeholder=\"password\">\n\n        <div *ngIf = \"!isValid()\">\n            <div class=\"alert alert-warning\" role=\"alert\">\n              All fields must be filled\n            </div>\n        </div>\n\n        <div *ngIf = \"registered\">\n            <div class=\"alert alert-success\" role=\"alert\">\n              You have been registered!\n              <img class=\"mb-4\" src=\"../../img/loading.gif\" alt=\"\" width=\"50\">\n            </div>\n        </div>\n        <div *ngIf = \"notRegistered\">\n            <div class=\"alert alert-warning\" role=\"alert\">\n              Something went wrong :(\n            </div>\n        </div>\n\n        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Register</button>\n    </form>\n</body>\n"
-
-/***/ }),
-
-/***/ 731:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(396);
-
-
-/***/ }),
-
-/***/ 79:
+/***/ 64:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1009,6 +979,126 @@ var AuthenticationService = (function () {
     var _a, _b;
 }());
 //# sourceMappingURL=/home/nabhoneelm/mean/quoter/angular-src/src/authentication.service.js.map
+
+/***/ }),
+
+/***/ 678:
+/***/ (function(module, exports) {
+
+module.exports = ".container {\n    margin: 2em auto;\n}\n"
+
+/***/ }),
+
+/***/ 679:
+/***/ (function(module, exports) {
+
+module.exports = ".col-sm-5 input[type=\"text\"] {\n    margin: 1em 0;\n}\n\ntable {\n    text-align: center;\n    margin: 1em 0;\n}\n"
+
+/***/ }),
+
+/***/ 680:
+/***/ (function(module, exports) {
+
+module.exports = ".quoteCard {\n    margin: 1em 0;\n}\n\n.card-body {\n    text-align: center;\n}\n\n.table {\n    text-align: center;\n}\n\n.col-sm-5 {\n    text-align: right;\n}\n\n.alert {\n    padding: 0.50rem 1rem;\n    margin-bottom: 0;\n}\n\n.jumbotron {\n    text-align: center;\n    font-family: Raleway;\n    color: #b1b1b1;\n    line-height: 1em;\n}\n\n.jumbotron h1 {\n    font-size: 4em !important;\n}\n"
+
+/***/ }),
+
+/***/ 681:
+/***/ (function(module, exports) {
+
+module.exports = "/* Sticky footer styles\n-------------------------------------------------- */\nhtml {\n  position: relative;\n  min-height: 100%;\n}\nbody {\n  margin-bottom: 60px; /* Margin bottom by footer height */\n}\n\n.footer {\n    position: relative;\n    bottom: 0;\n    width: 100%;\n    height: 60px; /* Set the fixed height of the footer here */\n    line-height: 60px; /* Vertically center the text there */\n    background-color: #f5f5f5;\n}\n\n@media screen and (min-width: 500px) {\n    .footer {\n        position: absolute;\n    }\n}\n"
+
+/***/ }),
+
+/***/ 682:
+/***/ (function(module, exports) {
+
+module.exports = ".jumbotron {\n    text-align: center;\n    font-family: Raleway;\n    color: #b1b1b1;\n    line-height: 1em;\n}\n\n.jumbotron h1 {\n    font-size: 4em !important;\n}\n"
+
+/***/ }),
+
+/***/ 683:
+/***/ (function(module, exports) {
+
+module.exports = "html,\nbody {\n  height: 100%;\n}\n\nbody {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n  -ms-flex-pack: center;\n  align-items: center;\n  justify-content: center;\n  padding-bottom: 40px;\n}\n\n.form-signin {\n  width: 100%;\n  max-width: 330px;\n  padding: 15px;\n  margin: 0 auto;\n}\n.form-signin .checkbox {\n  font-weight: 400;\n}\n.form-signin .form-control {\n  position: relative;\n  box-sizing: border-box;\n  height: auto;\n  padding: 10px;\n  font-size: 16px;\n}\n.form-signin input[type=\"text\"] {\n  margin-bottom: -1px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n}\n.form-signin input[type=\"password\"] {\n  margin-bottom: 10px;\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n"
+
+/***/ }),
+
+/***/ 684:
+/***/ (function(module, exports) {
+
+module.exports = ""
+
+/***/ }),
+
+/***/ 685:
+/***/ (function(module, exports) {
+
+module.exports = "html,\nbody {\n  height: 100%;\n}\n\nbody {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n  -ms-flex-pack: center;\n  align-items: center;\n  justify-content: center;\n  padding-bottom: 40px;\n}\n\n.form-signin {\n  width: 100%;\n  max-width: 330px;\n  padding: 15px;\n  margin: 0 auto;\n}\n.form-signin .checkbox {\n  font-weight: 400;\n}\n.form-signin .form-control {\n  position: relative;\n  box-sizing: border-box;\n  height: auto;\n  padding: 10px;\n  font-size: 16px;\n}\n.form-signin input[type=\"email\"], .form-signin input[type=\"text\"] {\n    margin-bottom: -1px;\n    border-radius: 0;\n}\n.form-signin input[type=\"name\"] {\n  margin-bottom: -1px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n}\n.form-signin input[type=\"password\"] {\n  margin-bottom: 10px;\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n"
+
+/***/ }),
+
+/***/ 686:
+/***/ (function(module, exports) {
+
+module.exports = "<app-navbar></app-navbar>\n<div class=\"container\">\n    <router-outlet></router-outlet>\n</div>\n<app-footer></app-footer>\n"
+
+/***/ }),
+
+/***/ 687:
+/***/ (function(module, exports) {
+
+module.exports = "<form [formGroup]=\"quotationForm\" novalidate (ngSubmit) = \"saveQuote()\">\n\n    <div class=\"row\">\n        <div class=\"col-sm-7\">\n            <div class=\"form-group form-row\" style=\"text-align: center;\">\n                <div class=\"col-sm-12\"><input type=\"text\" formControlName=\"client\" class=\"form-control\" placeholder=\"client's name\"></div>\n            </div>\n\n            <div formArrayName = \"crew\">\n                <div>\n                    <table class=\"table table-sm\">\n                        <thead class=\"thead-dark\">\n                            <tr>\n                                <th scope=\"col\">#</th>\n                                <th scope=\"col\">type</th>\n                                <th scope=\"col\">category</th>\n                                <th scope=\"col\">unit cost</th>\n                                <th scope=\"col\">units</th>\n                                <th scope=\"col\">cost</th>\n                                <th scope=\"col\"></th>\n                            </tr>\n                        </thead>\n                        <tbody *ngFor = \"let crew of quotationForm.controls.crew.controls; let i=index\">\n                            <tr [formGroupName] = \"i\">\n                                <th scope=\"row\">{{i + 1}}</th>\n                                <td>\n                                    <select class=\"form-control\" formControlName=\"type\" (change)=\"chooseItemType(i, 'crew')\">\n                                        <option *ngFor = \"let crew of crewType\" [value]=\"crew\">\n                                                {{ crew }}\n                                        </option>\n                                    </select>\n                                </td>\n                                <td>\n                                    <select class=\"form-control\" formControlName=\"category\" (change)=\"showUnitCost(i, 'crew');\">\n                                        <option *ngFor = \"let crew of crewSub[chosenCrewList[i]]; let j=index\" [value]=\"crew.name\">\n                                                {{ crew.name }}\n                                        </option>\n                                    </select>\n                                </td>\n                                <td>\n                                    <input type=\"number\" class=\"form-control\" formControlName=\"unitCost\" [value]=\"quotationForm.value.crew[i].unitCost\" [(ngModel)]=\"quotationForm.value.crew[i].unitCost\">\n                                </td>\n                                <td><input type=\"number\" class=\"form-control\" formControlName=\"units\"></td>\n                                <td>\n                                    <input type=\"number\" class=\"form-control\" formControlName=\"cost\" [value]=\"quotationForm.value.crew[i].unitCost*quotationForm.value.crew[i].units\" [(ngModel)]=\"quotationForm.value.crew[i].unitCost*quotationForm.value.crew[i].units\">\n                                </td>\n                                <td><span *ngIf=\"quotationForm.controls.crew.controls.length > 1\" (click)=\"removeCrew(i)\"><i class=\"far fa-times-circle\" ></i></span></td>\n                            </tr>\n                        </tbody>\n                    </table>\n                </div>\n            </div>\n\n            <a (click)=\"addCrew()\" class=\"btn btn-outline-primary\" role=\"button\">\n                Add crew\n            </a>\n\n            <div formArrayName = \"equipments\">\n                <div>\n                    <table class=\"table table-sm\">\n                        <thead class=\"thead-dark\">\n                            <tr>\n                                <th scope=\"col\">#</th>\n                                <th scope=\"col\">type</th>\n                                <th scope=\"col\">category</th>\n                                <th scope=\"col\">unit cost</th>\n                                <th scope=\"col\">units</th>\n                                <th scope=\"col\">cost</th>\n                                <th scope=\"col\"></th>\n                            </tr>\n                        </thead>\n                        <tbody *ngFor = \"let crew of quotationForm.controls.equipments.controls; let i=index\">\n                            <tr [formGroupName] = \"i\">\n                                <th scope=\"row\">{{i + 1}}</th>\n                                <td>\n                                    <select class=\"form-control\" formControlName=\"type\" (change)=\"chooseItemType(i, 'equipment')\">\n                                        <option *ngFor = \"let equipment of equipmentType\" [value]=\"equipment\">\n                                                {{ equipment }}\n                                        </option>\n                                    </select>\n                                </td>\n                                <td>\n                                    <select class=\"form-control\" formControlName=\"category\" (change)=\"showUnitCost(i, 'equipment');\">\n                                        <option *ngFor = \"let equipment of equipmentSub[chosenEquipmentList[i]]; let j=index\" [value]=\"equipment.name\">\n                                                {{ equipment.name }}\n                                        </option>\n                                    </select>\n                                </td>\n                                <td>\n                                    <input type=\"number\" class=\"form-control\" formControlName=\"unitCost\" [value]=\"quotationForm.value.equipments[i].unitCost\" [(ngModel)]=\"quotationForm.value.equipments[i].unitCost\">\n                                </td>\n                                <td><input type=\"number\" class=\"form-control\" formControlName=\"units\"></td>\n                                <td>\n                                    <input type=\"number\" class=\"form-control\" formControlName=\"cost\" [value]=\"quotationForm.value.equipments[i].unitCost * quotationForm.value.equipments[i].units\" [(ngModel)]=\"quotationForm.value.equipments[i].unitCost * quotationForm.value.equipments[i].units\">\n                                </td>\n                                <td><span *ngIf=\"quotationForm.controls.equipments.controls.length > 1\" (click)=\"removeEquipment(i)\"><i class=\"far fa-times-circle\" ></i></span></td>\n                            </tr>\n                        </tbody>\n                    </table>\n                </div>\n            </div>\n\n            <a (click)=\"addEquipment()\" class=\"btn btn-outline-primary\" role=\"button\">\n                Add equipment\n            </a>\n\n            <div class=\"form-group form-row\" style=\"text-align: center;\">\n                <input type=\"text\" readonly formControlName=\"productionTotal\" class=\"form-control\" placeholder=\"total production cost\" style=\"margin: 1em;\" [value] = \"getTotalProductionCost()\">\n            </div>\n        </div>\n        <div class=\"col-sm-5\">\n            <input type=\"text\" formControlName=\"numberOfVideos\" class=\"form-control\" placeholder=\"number of videos\">\n            <input type=\"text\" formControlName=\"averageLength\" class=\"form-control\" placeholder=\"average length\">\n            <input type=\"text\" formControlName=\"editStyle\" class=\"form-control\" placeholder=\"edit style\">\n            <input type=\"text\" formControlName=\"complexity\" class=\"form-control\" placeholder=\"complexity\">\n            <input type=\"text\" formControlName=\"unitCost\" class=\"form-control\" placeholder=\"unit cost\">\n            <input type=\"text\" formControlName=\"postProductionTotal\" class=\"form-control\" placeholder=\"total post production cost\">\n\n            <div class=\"row\">\n                <div class=\"col-sm-6\"><input type=\"text\" formControlName=\"total\" class=\"form-control\" placeholder=\"total cost\"></div>\n                <div class=\"col-sm-6\"><input type=\"text\" formControlName=\"quote\" class=\"form-control\" placeholder=\"quotation\"></div>\n            </div>\n            <button type=\"submit\" class=\"btn btn-danger\">Save</button>\n        </div>\n    </div>\n\n</form>\n"
+
+/***/ }),
+
+/***/ 688:
+/***/ (function(module, exports) {
+
+module.exports = "<div *ngIf = \"isEmpty()\">\n    <div class=\"jumbotron\">\n        <h1>This seems pretty useless now (I know).<br><br>Take baby steps.<br>Create a new quotation document</h1>\n    </div>\n</div>\n\n<div *ngIf = \"quotes\">\n    <div class=\"row\">\n        <div *ngFor = \"let quote of quotes; let i=index\" class=\"col-sm-4 quoteCard\">\n            <div class=\"card\">\n                <div class=\"card-body\">\n                    <h5 class=\"card-title\">{{dates[i]}}</h5>\n                    <p class=\"card-text\">{{quote.client}}</p>\n                    <button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" [attr.data-target]=\"'#' + i\">Expand</button>\n                </div>\n            </div>\n\n            <div class=\"modal fade\" [id]=\"i\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"exampleModalCenterTitle\" aria-hidden=\"true\">\n                <div class=\"modal-dialog modal-lg modal-dialog-centered\" role=\"document\">\n                    <div class=\"modal-content\">\n                        <div class=\"modal-header\">\n                            <h5 class=\"modal-title\">{{quote.client}}<br>[{{fullDates[i]}}]</h5>\n                            <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\" (click)=\"removeWarning()\">\n                                <span aria-hidden=\"true\">&times;</span>\n                            </button>\n                        </div>\n                        <div class=\"modal-body\">\n                            <div class=\"row\" style=\"text-align: center;\">\n                                <div class=\"col-sm-6\">\n                                    <h2>total: {{quote.total}}</h2>\n                                </div>\n                                <div class=\"col-sm-6\">\n                                    <h2>quotation: {{quote.quote}}</h2>\n                                </div>\n                            </div>\n                            <h2>crew</h2>\n                            <table class=\"table table-sm\">\n                                <thead class=\"thead-dark\">\n                                    <tr>\n                                        <th scope=\"col\">type</th>\n                                        <th scope=\"col\">category</th>\n                                        <th scope=\"col\">unit cost</th>\n                                        <th scope=\"col\">units</th>\n                                        <th scope=\"col\">cost</th>\n                                    </tr>\n                                </thead>\n                                <tbody *ngFor = \"let p of quote.production.crew\">\n                                    <tr>\n                                        <td>{{p.type}}</td>\n                                        <td>{{p.category}}</td>\n                                        <td>{{p.unitCost}}</td>\n                                        <td>{{p.units}}</td>\n                                        <td>{{p.cost}}</td>\n                                    </tr>\n                                </tbody>\n                            </table>\n\n                            <h2>equipments</h2>\n                            <table class=\"table table-sm\">\n                                <thead class=\"thead-dark\">\n                                    <tr>\n                                        <th scope=\"col\">type</th>\n                                        <th scope=\"col\">category</th>\n                                        <th scope=\"col\">unit cost</th>\n                                        <th scope=\"col\">units</th>\n                                        <th scope=\"col\">cost</th>\n                                    </tr>\n                                </thead>\n                                <tbody *ngFor = \"let p of quote.production.equipments\">\n                                    <tr>\n                                        <td>{{p.type}}</td>\n                                        <td>{{p.category}}</td>\n                                        <td>{{p.unitCost}}</td>\n                                        <td>{{p.units}}</td>\n                                        <td>{{p.cost}}</td>\n                                    </tr>\n                                </tbody>\n                            </table>\n\n                            <h2>post production</h2>\n                            <div class=\"row\" style=\"padding: 0 3em;\">\n                                <div class=\"col-sm-7\">number of videos</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.numberOfVideos}}</div>\n                                <div class=\"col-sm-7\">average length</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.averageLength}}</div>\n                                <div class=\"col-sm-7\">edit style</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.editStyle}}</div>\n                                <div class=\"col-sm-7\">complexity</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.complexity}}</div>\n                                <div class=\"col-sm-7\">unit cost</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.unitCost}}</div>\n                                <div class=\"col-sm-7\">total</div>\n                                <div class=\"col-sm-5\">{{quote.postProduction.total}}</div>\n                            </div>\n                        </div>\n                        <div class=\"modal-footer\">\n                            <button type=\"button\" class=\"btn btn-warning\" (click)=\"showDeleteWarning()\">Delete</button>\n                            <button type=\"button\" class=\"btn btn-secondary\" (click)=\"removeWarning()\" data-dismiss=\"modal\">Close</button>\n                            <div *ngIf = \"deleteWarning\">\n                                Are you sure you want to delete this?&nbsp;\n                                <a class=\"btn btn-info\" (click)=\"deleteQuote(quote._id, i)\" data-dismiss=\"modal\">Yes</a>\n                                <a class=\"btn btn-danger\" (click)=\"removeWarning()\">Not really</a>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>\n"
+
+/***/ }),
+
+/***/ 689:
+/***/ (function(module, exports) {
+
+module.exports = "<footer class=\"footer\">\n  <div class=\"container\">\n    <div class=\"row\" style=\"text-align: center;\">\n        <div class=\"col-sm-6\">\n            Anon. Tech\n        </div>\n        <div class=\"col-sm-6\">\n            &copy;{{ date }}\n        </div>\n    </div>\n  </div>\n</footer>\n"
+
+/***/ }),
+
+/***/ 690:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"jumbotron\">\n    <h1>\n        How to complete making a quotation:\n        <br>\n        Use <img src=\"../../../favicon.ico\" width=80>uoter.\n    </h1><br>\n    <h2>Seriously though, <a [routerLink]=\"['/register']\">register</a> yourself, and then <a [routerLink]=\"['/login']\">login</a></h2>\n</div>\n"
+
+/***/ }),
+
+/***/ 691:
+/***/ (function(module, exports) {
+
+module.exports = "<body class=\"text-center\">\n    <form class=\"form-signin\" (submit)=\"onLoginSubmit()\">\n        <img class=\"mb-4\" src=\"../../../favicon.ico\" alt=\"\" width=\"100\">\n        <h1 class=\"h3 mb-3 font-weight-normal\">First and foremost, sign in</h1>\n\n        <input type=\"text\" [(ngModel)]=\"username\" class=\"form-control\" name=\"username\" placeholder=\"Username\">\n        <input type=\"password\" [(ngModel)]=\"password\" class=\"form-control\" name=\"password\" placeholder=\"password\">\n\n        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Login</button>\n\n        <br>\n        <div *ngIf = \"invalid\">\n            <div class=\"alert alert-warning\" role=\"alert\">\n              {{ errorMessage }}\n            </div>\n        </div>\n    </form>\n</body>\n"
+
+/***/ }),
+
+/***/ 692:
+/***/ (function(module, exports) {
+
+module.exports = "<nav class=\"navbar navbar-expand-md navbar-light\">\n    <div class=\"container\">\n        <a class=\"navbar-brand\" [routerLink]=\"['/']\">Quoter</a>\n        <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#navbarCollapse\" aria-controls=\"navbarCollapse\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">\n            <span class=\"navbar-toggler-icon\"></span>\n        </button>\n        <div class=\"collapse navbar-collapse justify-content-between\" id=\"navbarCollapse\">\n            <ul class=\"navbar-nav navbar-left\">\n                <li *ngIf=\"authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/dashboard']\">Dashboard</a></li>\n                <li *ngIf=\"authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/create']\">New Quotation</a></li>\n            </ul>\n            <ul class=\"navbar-nav navbar-right\">\n                <li *ngIf=\"!authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/login']\">Login</a></li>\n                <li *ngIf=\"!authService.loggedIn()\" [routerLinkActive]=\"['active']\" [routerLinkActiveOptions]=\"{exact: true}\"><a class=\"nav-link\" [routerLink]=\"['/register']\">Register</a></li>\n                <li *ngIf=\"authService.loggedIn()\"><a class=\"nav-link\" style=\"cursor: pointer;\" (click)=\"onLogoutClick()\">Logout</a></li>\n            </ul>\n        </div>\n    </div>\n</nav>\n"
+
+/***/ }),
+
+/***/ 693:
+/***/ (function(module, exports) {
+
+module.exports = "<body class=\"text-center\">\n    <form class=\"form-signin\" (submit)=\"onRegisterSubmit()\">\n        <img class=\"mb-4\" src=\"../../../favicon.ico\" alt=\"\" width=\"100\">\n        <h1 class=\"h3 mb-3 font-weight-normal\">Create an account</h1>\n\n        <input type=\"name\" [(ngModel)]=\"name\" class=\"form-control\" name=\"name\" placeholder=\"Name\">\n        <input type=\"email\" [(ngModel)]=\"email\" class=\"form-control\" name=\"email\" placeholder=\"Email address\">\n        <input type=\"text\" [(ngModel)]=\"username\" class=\"form-control\" name=\"username\" placeholder=\"Username\">\n        <input type=\"password\" [(ngModel)]=\"password\" class=\"form-control\" name=\"password\" placeholder=\"password\">\n\n        <div *ngIf = \"!isValid()\">\n            <div class=\"alert alert-warning\" role=\"alert\">\n              All fields must be filled\n            </div>\n        </div>\n\n        <div *ngIf = \"registered\">\n            <div class=\"alert alert-success\" role=\"alert\">\n              You have been registered!\n              <img class=\"mb-4\" src=\"../../img/loading.gif\" alt=\"\" width=\"50\">\n            </div>\n        </div>\n        <div *ngIf = \"notRegistered\">\n            <div class=\"alert alert-warning\" role=\"alert\">\n              Something went wrong :(\n            </div>\n        </div>\n\n        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Register</button>\n    </form>\n</body>\n"
+
+/***/ }),
+
+/***/ 731:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(396);
+
 
 /***/ })
 

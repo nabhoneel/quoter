@@ -2,11 +2,16 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { BackendService } from './backend.service';
+import { AuthenticationService } from './authentication.service';
 
 @Injectable()
 export class QuotationService {
 
-    constructor(private http: Http, private path: BackendService) { }
+    constructor(
+        private http: Http,
+        private path: BackendService,
+        private authService: AuthenticationService
+    ) { }
 
     saveQuote(quote) {
         let headers = new Headers();
@@ -50,5 +55,25 @@ export class QuotationService {
             this.path.getPath() + 'api/quote/' + id,
             {headers: headers})
         .map(res => res.json());
+    }
+
+    getCrew() {
+        let headers = new Headers();
+        this.authService.loadToken();
+        headers.append('Authorization', this.authService.authToken);
+        headers.append('Content-type', 'application/json');
+        return this.http.get(this.path.getPath() + 'api/quote/crewdata/', {
+            headers: headers
+        }).map(res => res.json());
+    }
+
+    getEquipment() {
+        let headers = new Headers();
+        this.authService.loadToken();
+        headers.append('Authorization', this.authService.authToken);
+        headers.append('Content-type', 'application/json');
+        return this.http.get(this.path.getPath() + 'api/quote/equipmentdata/', {
+            headers: headers
+        }).map(res => res.json());
     }
 }

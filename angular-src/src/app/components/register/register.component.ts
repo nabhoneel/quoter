@@ -59,4 +59,8 @@ export class RegisterComponent implements OnInit {
       if(this.clicked == true) return this.invalid;
       else return true;
   }
+
+  changethis() {
+      this.name = "fageyeah";
+  }
 }
